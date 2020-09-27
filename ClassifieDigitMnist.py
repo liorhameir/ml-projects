@@ -1,42 +1,3 @@
-# import numpy as np
-# import cv2
-# import torch
-# import torchvision
-# from math import floor, ceil
-#
-# im = cv2.imread(r'C:\Users\lior\PycharmProjects\untitled1\training\data\images\AID\Untitled.jpg')
-#
-# # kernel = np.array([[-1, 1, 0],
-# #                    [1, 4, 0],
-# #                    [-1, 1, 0]])
-#
-# kernel = np.array([[0, 0, 0, 0, 0],
-#                    [0, 0, 0, 0, 0],
-#                    [0, 1, 2, 1, 0],
-#                    [-0.2, -1, -1, -1, -0.2],
-#                    [0, 0, 0, 0, 0]])
-#
-# gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-# gray = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
-#
-# gray = gray/255.0
-# image = im / 255.0
-# filtered = cv2.filter2D(src=image, kernel=kernel, ddepth=-1)
-# grey_filtered = cv2.filter2D(src=gray, kernel=kernel, ddepth=-1)
-# filtered = cv2.resize(filtered, (800, 660))
-# grey_filtered = cv2.resize(grey_filtered, (800, 660))
-# image = cv2.resize(image, (800, 660))
-#
-# filterd_img = np.concatenate((filtered, image), axis=1)
-# grey_filtered_img = np.concatenate((grey_filtered, image), axis=1)
-#
-# cv2.imshow('Numpy Concat', filterd_img)
-# # cv2.imshow('Numpy Horizontal Concat', grey_filtered_img)
-#
-# cv2.waitKey()
-# cv2.destroyAllWindows()
-
-
 import torch
 import torchvision
 import torch.nn as nn
@@ -47,10 +8,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 from time import time, sleep
 
-
-t = torch.tensor([1, 2, 3], dtype=torch.int8)
-t = t / 0.3
-
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 transform = transforms.Compose([
     transforms.ToTensor(),
@@ -68,25 +26,6 @@ train_loader = torch.utils.data.DataLoader(
     dataset=train_set,
     batch_size=64,
     shuffle=True)
-
-
-images, labels = next(iter(train_loader))
-print("the shape is ", labels.shape)
-print(labels)
-
-import matplotlib.pyplot as plt
-
-fig = plt.figure()
-for i in range(9):
-    plt.subplot(3, 3, i + 1)
-    plt.tight_layout()
-    plt.imshow(images[i][0], cmap='gray')
-    plt.xticks([])
-    plt.yticks([])
-
-fig.show()
-
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 
 class Net(nn.Module):
@@ -124,9 +63,9 @@ class Net(nn.Module):
 
 
 net = Net()
-# loss function
+
 criterion = nn.CrossEntropyLoss()
-# optimizer
+
 optimizer = optim.SGD(params=net.parameters(), lr=0.001, momentum=0.9)
 
 
