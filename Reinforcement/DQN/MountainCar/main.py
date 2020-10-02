@@ -5,10 +5,13 @@ import torch as T
 import matplotlib.pyplot as plt
 
 
-def plot_results(x_val, y_val, running_average):
+def plot_results(x_val, y_val, running_average, win_min):
     ax = plt.subplot()
     ax.scatter(x_val, y_val, color='green')
     ax.plot(x_val, running_average, c="red")
+    ax.plot(x_val, [win_min] * len(x_val), c="yellow")
+    ax.set_xlabel('Games')
+    ax.set_ylabel('Scores')
     ax.set_ylim(ymin=0)
     plt.show()
 
@@ -16,7 +19,6 @@ def plot_results(x_val, y_val, running_average):
 def adjust_reward(next_obs):
     extra = 0
     if next_obs[0] >= 0.5:
-        # the model will also win most of the time without it, but it gives just a little push in the right direction.
         extra += 100
     return abs(next_obs[0] - (-0.5)) + extra
 
@@ -34,6 +36,7 @@ if __name__ == '__main__':
         if task == 'test':
             agent.Q_policy.eval()
         wins = np.zeros(n_games)
+        min_win = 100
         for game in range(n_games):
             score = 0
             done = False
@@ -53,6 +56,8 @@ if __name__ == '__main__':
                 observation = next_observation
             if observation[0] >= 0.5:
                 wins[game] = 1
+                if min_win > score:
+                    min_win = score
             rewards_per_game.append(score)
             if task == 'train':
                 index = max(0, game - 100)
@@ -64,5 +69,5 @@ if __name__ == '__main__':
             print('round ', game, 'score %.2f' % score, 'average score %.2f' % avg_score,
                   'wins %.1f ' % success, flush=True)
         x = [i for i in range(1, n_games + 1)]
-        plot_results(x, rewards_per_game, average_reward)
+        plot_results(x, rewards_per_game, average_reward, min_win)
     env.close()
