@@ -16,6 +16,7 @@ def plot_results(x_val, y_val, running_average):
 def adjust_reward(next_obs):
     extra = 0
     if next_obs[0] >= 0.5:
+        # the model will also win most of the time without it, but it gives just a little push in the right direction.
         extra += 100
     return abs(next_obs[0] - (-0.5)) + extra
 
