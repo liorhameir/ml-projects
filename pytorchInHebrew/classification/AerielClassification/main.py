@@ -14,68 +14,11 @@ from math import floor, ceil
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-
-class Net(nn.Module):
-
-    def __init__(self):
-        super(Net, self).__init__()
-        # 1 input image channel, 6 output channels, 3x3 square convolution kernel
-        # num of kernels = out_channels
-        # formula = Out = (W−F+2P) / S + 1
-        # n = 650
-        self.conv1 = nn.Conv2d(in_channels=1, out_channels=6, kernel_size=3)
-        # Out = (n − 3) + 1 = 206
-        # 204
-        self.conv2 = nn.Conv2d(in_channels=6, out_channels=16, kernel_size=3)
-
-        # 256
-        # Out = (n − 3) + 1 = 128
-        # an affine operation: y = Wx + b
-        # linear/dense/fully connected layer are the same thing
-        # it calls features because its a one dimension tensor (after flatten)
-        # out_features X in_features * in_features X 1 = out_features X 1 which equals to the vector of the next layer
-
-        # in_features =
-        self.fc1 = nn.Linear(in_features=16 * 50 * 50, out_features=500, bias=True)  # 11*11 from image dimension
-        self.fc2 = nn.Linear(in_features=500, out_features=200, bias=True)
-        self.fc3 = nn.Linear(in_features=200, out_features=18, bias=True)
-
-    """
-    forword function is part of the api of every layer and network.
-    it gets a tensor, and pass it through every layer.
-    this is really the transformation.
-    it is lounch by the call method
-    """
-
-    def forward(self, t):
-        # Max pooling over a (2, 2) window
-        t = F.relu(self.conv1(t))
-        t = F.max_pool2d(t, kernel_size=2, stride=2)
-        # If the size is a square you can only specify a single number
-        t = F.relu(self.conv2(t))
-        t = F.max_pool2d(t, kernel_size=2, stride=2)
-        # flatten only the images tensors themselves and not the whole input_tensor
-        t = t.view(-1, self.num_flat_features(t))
-        t = F.relu(self.fc1(t))
-        t = F.relu(self.fc2(t))
-        out_tensor = self.fc3(t)
-        return out_tensor
-
-    @staticmethod
-    def num_flat_features(x):
-        size = x.size()[1:]  # all dimensions except the batch dimension
-        num_features = 1
-        for s in size:
-            num_features *= s
-        return num_features
-
-
-csv_train_dir = r"C:\Users\lior\PycharmProjects\untitled1\training\data\images\AID/train_csv.csv"
-csv_test_dir = r"C:\Users\lior\PycharmProjects\untitled1\training\data\images\test"
-main_root = r"C:\Users\lior\PycharmProjects\untitled1\training\data\images\AID"
+csv_dir = r"PATH_TO_CSV/train_csv.csv"
+main_root = r"PATH_TO_DIR\AID"
 
 IMG_SIZE = 224
-dataset = CustomDataset(csv_file=csv_train_dir, root_dir=main_root)
+dataset = CustomDataset(csv_file=csv_dir, root_dir=main_root)
 train_subset, val_subset = torch.utils.data.random_split(dataset, [floor(len(dataset) * 0.9), ceil(len(dataset) * 0.1)])
 
 train_set = SubSet(train_subset)
